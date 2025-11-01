@@ -50,3 +50,4 @@ def batch_processing(batch_size):
     for batch in stream_users_in_batches(batch_size):
         filtered = [user for user in batch if user[3] > 25]
         yield filtered
+        return batch
