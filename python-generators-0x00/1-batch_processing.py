@@ -45,17 +45,8 @@ def stream_users_in_batches(batch_size):
             connection.close()
 
 
+
 def batch_processing(batch_size):
-    """
-    Processes each batch to filter users over the age of 25.
-
-    Args:
-        batch_size (int): Number of users to fetch per batch.
-
-    Yields:
-        list: A filtered batch containing only users aged > 25.
-    """
-    # Use the first generator to get batches
     for batch in stream_users_in_batches(batch_size):
-        filtered = [user for user in batch if user[3] > 25]  # user[3] = age column
+        filtered = [user for user in batch if user[3] > 25]
         yield filtered
