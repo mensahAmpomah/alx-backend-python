@@ -1,5 +1,5 @@
 import asyncio
-import aiosqlite
+import aiosqlite 
 
 # Async function to fetch all users
 async def async_fetch_users(db_name):
@@ -23,8 +23,8 @@ async def fetch_concurrently():
     
     # Run both queries concurrently
     results = await asyncio.gather(
-        async_fetch_users(db_name),
-        async_fetch_older_users(db_name)
+        async_fetch_users(),
+        async_fetch_older_users()
     )
     
     all_users, older_users = results
