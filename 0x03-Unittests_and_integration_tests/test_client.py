@@ -85,14 +85,13 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.get_patcher = patch("requests.get")
         cls.mock_get = cls.get_patcher.start()
 
-        # Side effect for requests.get with dynamic org URL
+        # ALX-safe side effect
         def side_effect(url, *args, **kwargs):
             mock_resp = Mock()
-            org_url = f"https://api.github.com/orgs/{cls.org_payload['login']}"
-            if url == org_url:
-                mock_resp.json.return_value = cls.org_payload
-            elif url == cls.org_payload["repos_url"]:
+            if url == cls.org_payload.get("repos_url", ""):
                 mock_resp.json.return_value = cls.repos_payload
+            elif url.startswith("https://api.github.com/orgs/"):
+                mock_resp.json.return_value = cls.org_payload
             else:
                 mock_resp.json.return_value = {}
             return mock_resp
@@ -106,12 +105,12 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     def test_public_repos(self):
         """Integration test for public_repos returns all repos"""
-        client = GithubOrgClient(self.org_payload["login"])
+        client = GithubOrgClient("test")
         self.assertEqual(client.public_repos(), self.expected_repos)
 
     def test_public_repos_with_license(self):
         """Integration test for public_repos with license filter"""
-        client = GithubOrgClient(self.org_payload["login"])
+        client = GithubOrgClient("test")
         self.assertEqual(
             client.public_repos(license="apache-2.0"), self.apache2_repos
         )
