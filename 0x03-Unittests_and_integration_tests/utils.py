@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """Generic utilities for github org client.
 """
@@ -74,4 +73,3 @@ def memoize(fn: Callable) -> Callable:
         return getattr(self, attr_name)
 
     return property(memoized)
-
