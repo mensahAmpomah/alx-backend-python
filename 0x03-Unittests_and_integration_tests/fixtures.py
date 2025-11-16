@@ -87,20 +87,17 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Set up mock for requests.get before all tests"""
-        cls.get_patcher = patch("client.requests.get")
-        cls.mock_get = cls.get_patcher.start()
+        """Set up mock for get_json before all tests"""
+        cls.get_patcher = patch("client.get_json")
+        cls.mock_get_json = cls.get_patcher.start()
 
         # Return correct payload based on URL
-        def side_effect(url, *args, **kwargs):
-            mock_resp = Mock()
-            if url.endswith("/repos"):
-                mock_resp.json.return_value = cls.repos_payload
-            else:
-                mock_resp.json.return_value = cls.org_payload
-            return mock_resp
+        def side_effect(url):
+            if "repos" in url:
+                return cls.repos_payload
+            return cls.org_payload
 
-        cls.mock_get.side_effect = side_effect
+        cls.mock_get_json.side_effect = side_effect
 
     @classmethod
     def tearDownClass(cls):
