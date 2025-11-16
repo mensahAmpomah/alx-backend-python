@@ -32,16 +32,43 @@ class TestGithubOrgClient(unittest.TestCase):
         """Unit test GithubOrgClient._public_repos_url with mocked org"""
         client = GithubOrgClient("test_org")
 
-        # Patch the .org property using PropertyMock
         with patch(
             "client.GithubOrgClient.org",
             new_callable=PropertyMock
         ) as mock_org:
-            # Mocked payload with repos_url
             mock_org.return_value = {"repos_url": "https://api.github.com/orgs/test_org/repos"}
-
-            # Access _public_repos_url property
             result = client._public_repos_url
-
-            # Assert the property returns the mocked repos_url
             self.assertEqual(result, "https://api.github.com/orgs/test_org/repos")
+
+    # ===== Task 6: More patching for public_repos =====
+    @patch("client.get_json")
+    def test_public_repos(self, mock_get_json):
+        """Unit test GithubOrgClient.public_repos"""
+        # Arrange: mock payload from get_json
+        payload = [
+            {"name": "repo1", "license": {"key": "mit"}},
+            {"name": "repo2", "license": {"key": "apache-2.0"}},
+            {"name": "repo3"}
+        ]
+        mock_get_json.return_value = payload
+
+        client = GithubOrgClient("test_org")
+
+        # Patch _public_repos_url property
+        with patch(
+            "client.GithubOrgClient._public_repos_url",
+            new_callable=PropertyMock
+        ) as mock_url:
+            mock_url.return_value = "fake_url"
+
+            # Act
+            result = client.public_repos()
+            result_license = client.public_repos(license="mit")
+
+            # Assert
+            self.assertEqual(result, ["repo1", "repo2", "repo3"])
+            self.assertEqual(result_license, ["repo1"])
+
+            # Ensure mocks were called exactly once
+            mock_get_json.assert_called_once_with("fake_url")
+            self.assertEqual(mock_url.call_count, 2)  # accessed twice
