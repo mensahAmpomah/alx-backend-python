@@ -18,12 +18,12 @@ class TestGithubOrgClient(unittest.TestCase):
         ({"license": {"key": "other_license"}}, "my_license", False),
     ])
     def test_has_license(self, repo, license_key, expected):
-        """Test has_license with 2 parameterized cases"""
+        """Unit test for has_license static method"""
         self.assertEqual(GithubOrgClient.has_license(repo, license_key), expected)
 
     @patch("utils.get_json")
     def test_public_repos(self, mock_get_json):
-        """Unit test for public_repos"""
+        """Unit test for public_repos method"""
         payload = [
             {"name": "repo1", "license": {"key": "mit"}},
             {"name": "repo2", "license": {"key": "apache-2.0"}},
@@ -41,7 +41,7 @@ class TestGithubOrgClient(unittest.TestCase):
             result = client.public_repos()
             self.assertEqual(result, ["repo1", "repo2", "repo3"])
 
-            # Ensure mocks called exactly once
+            # Ensure mocks are called exactly once
             mock_get_json.assert_called_once_with("http://example.com")
             mock_url.assert_called_once()
 
@@ -82,10 +82,12 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.get_patcher.stop()
 
     def test_public_repos(self):
+        """Integration test: public_repos returns all repos"""
         client = GithubOrgClient(self.org_payload["login"])
         self.assertEqual(client.public_repos(), self.expected_repos)
 
     def test_public_repos_with_license(self):
+        """Integration test: public_repos filters by license"""
         client = GithubOrgClient(self.org_payload["login"])
         self.assertEqual(
             client.public_repos(license="apache-2.0"),
