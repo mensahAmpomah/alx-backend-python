@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-"""Unit and integration tests for client.GithubOrgClient"""
-import unittest
-from unittest.mock import patch, PropertyMock, Mock
-from parameterized import parameterized_class
-from client import GithubOrgClient
-from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
-
 
 class TestGithubOrgClient(unittest.TestCase):
     """Unit tests for GithubOrgClient"""
@@ -62,15 +54,12 @@ class TestGithubOrgClient(unittest.TestCase):
                 result_license = client.public_repos(license="mit")
                 self.assertEqual(result_license, ["repo1"])
 
-    def test_has_license_true(self):
-        """Test has_license returns True"""
-        repo = {"license": {"key": "my_license"}}
-        self.assertTrue(GithubOrgClient.has_license(repo, "my_license"))
-
-    def test_has_license_false(self):
-        """Test has_license returns False"""
-        repo = {"license": {"key": "other_license"}}
-        self.assertFalse(GithubOrgClient.has_license(repo, "my_license"))
+    def test_has_license(self):
+        """Test GithubOrgClient.has_license returns correct boolean"""
+        repo1 = {"license": {"key": "my_license"}}
+        repo2 = {"license": {"key": "other_license"}}
+        self.assertTrue(GithubOrgClient.has_license(repo1, "my_license"))
+        self.assertFalse(GithubOrgClient.has_license(repo2, "my_license"))
 
 
 @parameterized_class([{
