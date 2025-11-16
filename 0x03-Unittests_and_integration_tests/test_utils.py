@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-from parameterized import parameterized
+"""Unit tests for utils.py functions"""
 import unittest
-from utils import access_nested_map
-from utils import get_json
+from unittest.mock import patch, Mock
+from parameterized import parameterized
+from utils import access_nested_map, get_json
+
 
 class TestAccessNestedMap(unittest.TestCase):
     """Tests for the access_nested_map function"""
@@ -24,8 +26,8 @@ class TestAccessNestedMap(unittest.TestCase):
         """Test KeyError is raised when path is invalid"""
         with self.assertRaises(KeyError) as context:
             access_nested_map(nested_map, path)
+        # KeyError message includes quotes in Python, fix assertion
         self.assertEqual(str(context.exception), f"'{expected_key}'")
-
 
 
 class TestGetJson(unittest.TestCase):
@@ -40,9 +42,10 @@ class TestGetJson(unittest.TestCase):
         mock_response = Mock()
         mock_response.json.return_value = test_payload
 
+        # Patch requests.get where it's used in utils.py
         with patch("utils.requests.get", return_value=mock_response) as mock_get:
             result = get_json(test_url)
-            # Make sure requests.get was called exactly once
+            # Ensure requests.get was called exactly once with test_url
             mock_get.assert_called_once_with(test_url)
-            # Make sure get_json returns the payload
+            # Ensure get_json returns the expected payload
             self.assertEqual(result, test_payload)
