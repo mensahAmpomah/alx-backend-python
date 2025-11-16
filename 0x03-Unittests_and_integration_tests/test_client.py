@@ -84,7 +84,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Set up patch for requests.get before all tests"""
+        """Patch requests.get for all tests"""
         cls.get_patcher = patch("requests.get")
         cls.mock_get = cls.get_patcher.start()
 
@@ -107,7 +107,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.get_patcher.stop()
 
     def test_public_repos(self):
-        """Integration test for public_repos"""
+        """Integration test for public_repos returns all repos"""
         client = GithubOrgClient("test")
         self.assertEqual(client.public_repos(), self.expected_repos)
 
