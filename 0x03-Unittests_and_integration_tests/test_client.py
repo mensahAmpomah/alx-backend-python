@@ -8,6 +8,7 @@ from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
 
 
 class TestGithubOrgClient(unittest.TestCase):
+
     @parameterized.expand([
         ("google",),
         ("abc",)
@@ -16,17 +17,14 @@ class TestGithubOrgClient(unittest.TestCase):
     def test_org(self, org_name, mock_get_json):
         expected_payload = {"login": org_name}
         mock_get_json.return_value = expected_payload
-
         client = GithubOrgClient(org_name)
         result = client.org
-
         self.assertEqual(result, expected_payload)
         expected_url = f"https://api.github.com/orgs/{org_name}"
         mock_get_json.assert_called_once_with(expected_url)
 
     def test_public_repos_url(self):
         client = GithubOrgClient("test_org")
-
         with patch(
             "client.GithubOrgClient.org",
             new_callable=PropertyMock
@@ -44,19 +42,15 @@ class TestGithubOrgClient(unittest.TestCase):
         ]
         mock_get_json.return_value = payload
         client = GithubOrgClient("test_org")
-
         with patch(
             "client.GithubOrgClient._public_repos_url",
             new_callable=PropertyMock
         ) as mock_url:
             mock_url.return_value = "fake_url"
-
             result = client.public_repos()
             result_license = client.public_repos(license="mit")
-
             self.assertEqual(result, ["repo1", "repo2", "repo3"])
             self.assertEqual(result_license, ["repo1"])
-
             mock_get_json.assert_called_once_with("fake_url")
             self.assertEqual(mock_url.call_count, 2)
 
@@ -77,6 +71,7 @@ class TestGithubOrgClient(unittest.TestCase):
     }
 ])
 class TestIntegrationGithubOrgClient(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         cls.get_patcher = patch("requests.get")
