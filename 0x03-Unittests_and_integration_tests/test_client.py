@@ -24,7 +24,6 @@ class TestGithubOrgClient(unittest.TestCase):
         result = client.org
 
         self.assertEqual(result, expected_payload)
-
         expected_url = f"https://api.github.com/orgs/{org_name}"
         mock_get_json.assert_called_once_with(expected_url)
 
@@ -59,7 +58,6 @@ class TestGithubOrgClient(unittest.TestCase):
             mock_url.return_value = "fake_url"
             result = client.public_repos()
             self.assertEqual(result, ["repo1", "repo2", "repo3"])
-
             result_license = client.public_repos(license="mit")
             self.assertEqual(result_license, ["repo1"])
 
@@ -73,14 +71,12 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(result, expected)
 
 
-@parameterized_class([
-    {
-        "org_payload": org_payload,
-        "repos_payload": repos_payload,
-        "expected_repos": expected_repos,
-        "apache2_repos": apache2_repos
-    }
-])
+@parameterized_class([{
+    "org_payload": org_payload,
+    "repos_payload": repos_payload,
+    "expected_repos": expected_repos,
+    "apache2_repos": apache2_repos
+}])
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Integration tests for GithubOrgClient.public_repos"""
 
@@ -90,7 +86,6 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.get_patcher = patch("client.get_json")
         cls.mock_get_json = cls.get_patcher.start()
 
-        # Side effect returns correct fixture based on URL
         def side_effect(url, *args, **kwargs):
             if url == "https://api.github.com/orgs/test":
                 return cls.org_payload
