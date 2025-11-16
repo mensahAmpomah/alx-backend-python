@@ -26,7 +26,7 @@ class TestAccessNestedMap(unittest.TestCase):
         """Test KeyError is raised when path is invalid"""
         with self.assertRaises(KeyError) as context:
             access_nested_map(nested_map, path)
-        # KeyError message includes quotes in Python, fix assertion
+        # KeyError message includes quotes in Python
         self.assertEqual(str(context.exception), f"'{expected_key}'")
 
 
@@ -39,6 +39,7 @@ class TestGetJson(unittest.TestCase):
     ])
     def test_get_json(self, test_url, test_payload):
         """Test get_json returns expected payload with mocked requests.get"""
+        # Create mock response object
         mock_response = Mock()
         mock_response.json.return_value = test_payload
 
@@ -71,7 +72,8 @@ class TestMemoize(unittest.TestCase):
         test_obj = TestClass()
 
         # Patch a_method
-        with patch.object(TestClass, "a_method", return_value=42) as mock_method:
+        with patch.object(
+                TestClass, "a_method", return_value=42) as mock_method:
             result1 = test_obj.a_property
             result2 = test_obj.a_property
 
