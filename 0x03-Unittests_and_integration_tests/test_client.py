@@ -85,10 +85,11 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.get_patcher = patch("requests.get")
         cls.mock_get = cls.get_patcher.start()
 
-        # Side effect for requests.get
+        # Side effect for requests.get with dynamic org URL
         def side_effect(url, *args, **kwargs):
             mock_resp = Mock()
-            if url == "https://api.github.com/orgs/test":
+            org_url = f"https://api.github.com/orgs/{cls.org_payload['login']}"
+            if url == org_url:
                 mock_resp.json.return_value = cls.org_payload
             elif url == cls.org_payload["repos_url"]:
                 mock_resp.json.return_value = cls.repos_payload
@@ -105,12 +106,12 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     def test_public_repos(self):
         """Integration test for public_repos returns all repos"""
-        client = GithubOrgClient("test")
+        client = GithubOrgClient(self.org_payload["login"])
         self.assertEqual(client.public_repos(), self.expected_repos)
 
     def test_public_repos_with_license(self):
         """Integration test for public_repos with license filter"""
-        client = GithubOrgClient("test")
+        client = GithubOrgClient(self.org_payload["login"])
         self.assertEqual(
             client.public_repos(license="apache-2.0"), self.apache2_repos
         )
