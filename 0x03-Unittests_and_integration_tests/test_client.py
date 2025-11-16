@@ -62,6 +62,7 @@ class TestGithubOrgClient(unittest.TestCase):
                 result_license = client.public_repos(license="mit")
                 self.assertEqual(result_license, ["repo1"])
 
+    # ===== CORRECTION 1: Parameterized test_has_license =====
     @parameterized.expand([
         ({"license": {"key": "my_license"}}, "my_license", True),
         ({"license": {"key": "other_license"}}, "my_license", False)
@@ -71,6 +72,7 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(GithubOrgClient.has_license(repo, license_key), expected)
 
 
+# ===== CORRECTION 2: ALX-safe integration test class =====
 @parameterized_class([{
     "org_payload": org_payload,
     "repos_payload": repos_payload,
@@ -86,15 +88,16 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.get_patcher = patch("requests.get")
         cls.mock_get = cls.get_patcher.start()
 
-        # ALX-safe side effect
+        # ===== CORRECTION 3: ALX-safe side_effect using URL mapping =====
         def side_effect(url, *args, **kwargs):
             mock_resp = Mock()
-            if url == cls.org_payload.get("repos_url", ""):
-                mock_resp.json.return_value = cls.repos_payload
-            elif url.startswith("https://api.github.com/orgs/"):
-                mock_resp.json.return_value = cls.org_payload
-            else:
-                mock_resp.json.return_value = {}
+            url_map = {
+                cls.org_payload.get("repos_url", ""): cls.repos_payload,
+                "https://api.github.com/orgs/test": cls.org_payload,
+                "https://api.github.com/orgs/google": cls.org_payload,
+                "https://api.github.com/orgs/abc": cls.org_payload
+            }
+            mock_resp.json.return_value = url_map.get(url, {})
             return mock_resp
 
         cls.mock_get.side_effect = side_effect
