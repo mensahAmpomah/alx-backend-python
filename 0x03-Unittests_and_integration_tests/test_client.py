@@ -2,7 +2,7 @@
 """Unit and integration tests for GithubOrgClient"""
 import unittest
 from unittest.mock import patch, PropertyMock, Mock
-from parameterized import parameterized
+
 from client import GithubOrgClient
 from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
 
@@ -11,10 +11,7 @@ from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
 # ------------------------
 class TestGithubOrgClient(unittest.TestCase):
 
-    @parameterized.expand([
-        ({"license": {"key": "my_license"}}, "my_license", True),
-        ({"license": {"key": "other_license"}}, "my_license", False),
-    ])
+
     def test_has_license(self, repo, license_key, expected):
         """Unit test for has_license with 2 parameterized cases"""
         self.assertEqual(
