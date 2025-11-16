@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from parameterized import parameterized
 import unittest
 from utils import access_nested_map
