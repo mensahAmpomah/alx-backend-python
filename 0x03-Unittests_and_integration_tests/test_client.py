@@ -9,6 +9,7 @@ from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
 
 class TestGithubOrgClient(unittest.TestCase):
 
+    # FIX: @parameterized.expand must be above @patch
     @parameterized.expand([
         ("google",),
         ("abc",)
@@ -18,8 +19,7 @@ class TestGithubOrgClient(unittest.TestCase):
         expected_payload = {"login": org_name}
         mock_get_json.return_value = expected_payload
         client = GithubOrgClient(org_name)
-        result = client.org
-        self.assertEqual(result, expected_payload)
+        self.assertEqual(client.org, expected_payload)
         expected_url = f"https://api.github.com/orgs/{org_name}"
         mock_get_json.assert_called_once_with(expected_url)
 
@@ -30,8 +30,7 @@ class TestGithubOrgClient(unittest.TestCase):
             new_callable=PropertyMock
         ) as mock_org:
             mock_org.return_value = {"repos_url": "https://api.github.com/orgs/test_org/repos"}
-            result = client._public_repos_url
-            self.assertEqual(result, "https://api.github.com/orgs/test_org/repos")
+            self.assertEqual(client._public_repos_url, "https://api.github.com/orgs/test_org/repos")
 
     @patch("client.get_json")
     def test_public_repos(self, mock_get_json):
@@ -47,13 +46,12 @@ class TestGithubOrgClient(unittest.TestCase):
             new_callable=PropertyMock
         ) as mock_url:
             mock_url.return_value = "fake_url"
-            result = client.public_repos()
-            result_license = client.public_repos(license="mit")
-            self.assertEqual(result, ["repo1", "repo2", "repo3"])
-            self.assertEqual(result_license, ["repo1"])
+            self.assertEqual(client.public_repos(), ["repo1", "repo2", "repo3"])
+            self.assertEqual(client.public_repos(license="mit"), ["repo1"])
             mock_get_json.assert_called_once_with("fake_url")
             self.assertEqual(mock_url.call_count, 2)
 
+    # FIX: test_has_license must be directly inside TestGithubOrgClient, no extra decorators
     @parameterized.expand([
         ({"license": {"key": "my_license"}}, "my_license", True),
         ({"license": {"key": "other_license"}}, "my_license", False)
