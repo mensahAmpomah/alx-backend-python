@@ -60,7 +60,6 @@ class TestGithubOrgClient(unittest.TestCase):
             result = client.public_repos()
             self.assertEqual(result, ["repo1", "repo2", "repo3"])
 
-            # Test with license filter
             result_license = client.public_repos(license="mit")
             self.assertEqual(result_license, ["repo1"])
 
@@ -91,7 +90,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.get_patcher = patch("client.get_json")
         cls.mock_get_json = cls.get_patcher.start()
 
-        # Side effect must match exact URLs ALX checker expects
+        # Side effect returns correct fixture based on URL
         def side_effect(url, *args, **kwargs):
             if url == "https://api.github.com/orgs/test":
                 return cls.org_payload
