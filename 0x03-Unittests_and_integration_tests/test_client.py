@@ -86,7 +86,6 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.get_patcher = patch("requests.get")
         cls.mock_get = cls.get_patcher.start()
 
-        # Return a Mock with .json() returning the correct fixture
         def side_effect(url, *args, **kwargs):
             mock_resp = Mock()
             if url == "https://api.github.com/orgs/test":
