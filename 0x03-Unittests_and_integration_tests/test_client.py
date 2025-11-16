@@ -9,7 +9,7 @@ from typing import List, Dict
 
 
 # ------------------------
-# CLIENT CLASS FIXED HERE
+# CLIENT CLASS
 # ------------------------
 class GithubOrgClient:
     """A GitHub org client."""
@@ -124,19 +124,17 @@ class TestGithubOrgClient(unittest.TestCase):
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.get_patcher = patch("utils.requests.get")
+        """Patch get_json and set side_effect"""
+        cls.get_patcher = patch("utils.get_json")
         cls.mock_get = cls.get_patcher.start()
 
         def side_effect(url, *args, **kwargs):
-            mock_response = Mock()
             if url == f"https://api.github.com/orgs/{cls.org_payload['login']}":
-                mock_response.json.return_value = cls.org_payload
+                return cls.org_payload
             elif url == cls.org_payload["repos_url"]:
-                mock_response.json.return_value = cls.repos_payload
+                return cls.repos_payload
             else:
-                mock_response.json.return_value = {}
-            return mock_response
-
+                return {}
         cls.mock_get.side_effect = side_effect
 
     @classmethod
