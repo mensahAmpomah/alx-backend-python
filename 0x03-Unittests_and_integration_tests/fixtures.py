@@ -14,7 +14,7 @@ class TestGithubOrgClient(unittest.TestCase):
         ("google",),
         ("abc",)
     ])
-    @patch("client.get_json")  # patch get_json in client.py
+    @patch("client.get_json")
     def test_org(self, org_name, mock_get_json):
         """Test that GithubOrgClient.org returns the correct value"""
         expected_payload = {"login": org_name}
@@ -87,15 +87,17 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Set up mock for get_json before all tests"""
+        """Set up patch for get_json before all tests"""
         cls.get_patcher = patch("client.get_json")
         cls.mock_get_json = cls.get_patcher.start()
 
         # Return correct payload based on URL
-        def side_effect(url):
-            if "repos" in url:
+        def side_effect(url, *args, **kwargs):
+            if url == "https://api.github.com/orgs/test_org":
+                return cls.org_payload
+            elif url == cls.org_payload["repos_url"]:
                 return cls.repos_payload
-            return cls.org_payload
+            return {}
 
         cls.mock_get_json.side_effect = side_effect
 
