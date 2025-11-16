@@ -62,7 +62,7 @@ class TestGithubOrgClient(unittest.TestCase):
                 result_license = client.public_repos(license="mit")
                 self.assertEqual(result_license, ["repo1"])
 
-    # ===== CORRECTION 1: Parameterized test_has_license =====
+    # ===== FIXED: Parameterized test_has_license =====
     @parameterized.expand([
         ({"license": {"key": "my_license"}}, "my_license", True),
         ({"license": {"key": "other_license"}}, "my_license", False)
@@ -72,7 +72,7 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(GithubOrgClient.has_license(repo, license_key), expected)
 
 
-# ===== CORRECTION 2: ALX-safe integration test class =====
+# ===== Integration tests with ALX-safe patching =====
 @parameterized_class([{
     "org_payload": org_payload,
     "repos_payload": repos_payload,
@@ -88,7 +88,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.get_patcher = patch("requests.get")
         cls.mock_get = cls.get_patcher.start()
 
-        # ===== CORRECTION 3: ALX-safe side_effect using URL mapping =====
+        # ===== FIXED: ALX-safe side_effect using explicit URL mapping =====
         def side_effect(url, *args, **kwargs):
             mock_resp = Mock()
             url_map = {
