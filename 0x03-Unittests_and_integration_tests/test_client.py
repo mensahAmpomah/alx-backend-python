@@ -19,7 +19,10 @@ class TestGithubOrgClient(unittest.TestCase):
     ])
     def test_has_license(self, repo, license_key, expected):
         """Unit test for has_license static method"""
-        self.assertEqual(GithubOrgClient.has_license(repo, license_key), expected)
+        self.assertEqual(
+            GithubOrgClient.has_license(repo, license_key),
+            expected
+        )
 
     @patch("utils.get_json")
     def test_public_repos(self, mock_get_json):
@@ -39,7 +42,10 @@ class TestGithubOrgClient(unittest.TestCase):
             client = GithubOrgClient("test_org")
 
             result = client.public_repos()
-            self.assertEqual(result, ["repo1", "repo2", "repo3"])
+            self.assertEqual(
+                result,
+                ["repo1", "repo2", "repo3"]
+            )
 
             # Ensure mocks are called exactly once
             mock_get_json.assert_called_once_with("http://example.com")
