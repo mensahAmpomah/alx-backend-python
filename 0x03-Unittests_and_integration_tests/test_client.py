@@ -22,8 +22,8 @@ class TestGithubOrgClient(unittest.TestCase):
 
         client = GithubOrgClient(org_name)
         result = client.org
-
         self.assertEqual(result, expected_payload)
+
         expected_url = f"https://api.github.com/orgs/{org_name}"
         mock_get_json.assert_called_once_with(expected_url)
 
@@ -86,6 +86,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.get_patcher = patch("client.get_json")
         cls.mock_get_json = cls.get_patcher.start()
 
+        # Side effect returns correct fixture based on URL
         def side_effect(url, *args, **kwargs):
             if url == "https://api.github.com/orgs/test":
                 return cls.org_payload
