@@ -2,20 +2,20 @@
 """Unit and integration tests for client.GithubOrgClient"""
 import unittest
 from unittest.mock import patch, PropertyMock, Mock
-from parameterized import parameterized, parameterized_class
 from client import GithubOrgClient
 from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
+from parameterized import parameterized, parameterized_class
 
 
 class TestGithubOrgClient(unittest.TestCase):
 
-    # FIX: @parameterized.expand must be above @patch
     @parameterized.expand([
         ("google",),
         ("abc",)
     ])
     @patch("client.get_json")
     def test_org(self, org_name, mock_get_json):
+        """Test GithubOrgClient.org property"""
         expected_payload = {"login": org_name}
         mock_get_json.return_value = expected_payload
         client = GithubOrgClient(org_name)
@@ -24,6 +24,7 @@ class TestGithubOrgClient(unittest.TestCase):
         mock_get_json.assert_called_once_with(expected_url)
 
     def test_public_repos_url(self):
+        """Test _public_repos_url property"""
         client = GithubOrgClient("test_org")
         with patch(
             "client.GithubOrgClient.org",
@@ -34,6 +35,7 @@ class TestGithubOrgClient(unittest.TestCase):
 
     @patch("client.get_json")
     def test_public_repos(self, mock_get_json):
+        """Test public_repos method with and without license filtering"""
         payload = [
             {"name": "repo1", "license": {"key": "mit"}},
             {"name": "repo2", "license": {"key": "apache-2.0"}},
@@ -51,12 +53,12 @@ class TestGithubOrgClient(unittest.TestCase):
             mock_get_json.assert_called_once_with("fake_url")
             self.assertEqual(mock_url.call_count, 2)
 
-    # FIX: test_has_license must be directly inside TestGithubOrgClient, no extra decorators
     @parameterized.expand([
         ({"license": {"key": "my_license"}}, "my_license", True),
         ({"license": {"key": "other_license"}}, "my_license", False)
     ])
     def test_has_license(self, repo, license_key, expected):
+        """Test has_license static method"""
         self.assertEqual(GithubOrgClient.has_license(repo, license_key), expected)
 
 
@@ -92,10 +94,12 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.get_patcher.stop()
 
     def test_public_repos(self):
+        """Test integration: public_repos returns expected repos"""
         client = GithubOrgClient("test")
         self.assertEqual(client.public_repos(), self.expected_repos)
 
     def test_public_repos_with_license(self):
+        """Test integration: public_repos with license filtering"""
         client = GithubOrgClient("test")
         self.assertEqual(
             client.public_repos(license="apache-2.0"), self.apache2_repos
