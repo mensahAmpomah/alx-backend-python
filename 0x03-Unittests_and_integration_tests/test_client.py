@@ -2,27 +2,28 @@
 """Unit and integration tests for GithubOrgClient"""
 import unittest
 from unittest.mock import patch, PropertyMock, Mock
-
+from parameterized import parameterized
 from client import GithubOrgClient
 from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
+
 
 # ------------------------
 # UNIT TESTS
 # ------------------------
 class TestGithubOrgClient(unittest.TestCase):
+    """Unit tests for GithubOrgClient"""
 
-
+    @parameterized.expand([
+        ({"license": {"key": "my_license"}}, "my_license", True),
+        ({"license": {"key": "other_license"}}, "my_license", False),
+    ])
     def test_has_license(self, repo, license_key, expected):
-        """Unit test for has_license with 2 parameterized cases"""
-        self.assertEqual(
-            GithubOrgClient.has_license(repo, license_key),
-            expected
-        )
+        """Test has_license with 2 parameterized cases"""
+        self.assertEqual(GithubOrgClient.has_license(repo, license_key), expected)
 
     @patch("utils.get_json")
     def test_public_repos(self, mock_get_json):
         """Unit test for public_repos"""
-        # Mocked payload
         payload = [
             {"name": "repo1", "license": {"key": "mit"}},
             {"name": "repo2", "license": {"key": "apache-2.0"}},
@@ -30,7 +31,6 @@ class TestGithubOrgClient(unittest.TestCase):
         ]
         mock_get_json.return_value = payload
 
-        # Patch _public_repos_url as context manager
         with patch(
             "client.GithubOrgClient._public_repos_url",
             new_callable=PropertyMock
@@ -38,12 +38,10 @@ class TestGithubOrgClient(unittest.TestCase):
             mock_url.return_value = "http://example.com"
             client = GithubOrgClient("test_org")
 
-            # Call public_repos only once
             result = client.public_repos()
-            expected_result = ["repo1", "repo2", "repo3"]
-            self.assertEqual(result, expected_result)
+            self.assertEqual(result, ["repo1", "repo2", "repo3"])
 
-            # Verify mocks called once
+            # Ensure mocks called exactly once
             mock_get_json.assert_called_once_with("http://example.com")
             mock_url.assert_called_once()
 
@@ -54,7 +52,7 @@ class TestGithubOrgClient(unittest.TestCase):
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Integration tests for GithubOrgClient using fixtures"""
 
-    # Assign fixtures as class attributes
+    # Fixtures as class attributes
     org_payload = org_payload
     repos_payload = repos_payload
     expected_repos = expected_repos
@@ -80,6 +78,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        """Stop patcher"""
         cls.get_patcher.stop()
 
     def test_public_repos(self):
