@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Unit and integration tests for client.GithubOrgClient"""
 import unittest
-from unittest.mock import patch, PropertyMock
+from unittest.mock import patch, PropertyMock, Mock
 from parameterized import parameterized, parameterized_class
 from client import GithubOrgClient
 from fixtures import org_payload, repos_payload, expected_repos, apache2_repos
@@ -82,19 +82,22 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Set up patch for get_json before all tests"""
-        cls.get_patcher = patch("client.get_json")
-        cls.mock_get_json = cls.get_patcher.start()
+        """Set up patch for requests.get before all tests"""
+        cls.get_patcher = patch("requests.get")
+        cls.mock_get = cls.get_patcher.start()
 
-        # Side effect returns correct fixture based on URL
+        # Return a Mock with .json() returning the correct fixture
         def side_effect(url, *args, **kwargs):
+            mock_resp = Mock()
             if url == "https://api.github.com/orgs/test":
-                return cls.org_payload
+                mock_resp.json.return_value = cls.org_payload
             elif url == cls.org_payload["repos_url"]:
-                return cls.repos_payload
-            return {}
+                mock_resp.json.return_value = cls.repos_payload
+            else:
+                mock_resp.json.return_value = {}
+            return mock_resp
 
-        cls.mock_get_json.side_effect = side_effect
+        cls.mock_get.side_effect = side_effect
 
     @classmethod
     def tearDownClass(cls):
