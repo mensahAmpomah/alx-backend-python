@@ -3,7 +3,12 @@ from .models import User, Conversation, Message
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Serializer for User model"""
+    """Serializer for User model with explicit CharFields"""
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    email = serializers.CharField()
+    phone_number = serializers.CharField(allow_blank=True, allow_null=True)
+    role = serializers.CharField()
 
     class Meta:
         model = User
@@ -20,9 +25,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class MessageSerializer(serializers.ModelSerializer):
-    """Serializer for Message model"""
-
-    sender = UserSerializer(read_only=True)  # Nested User info
+    """Serializer for Message model with nested sender and SerializerMethodField"""
+    sender = UserSerializer(read_only=True)
+    message_body = serializers.CharField()
+    preview = serializers.SerializerMethodField()
 
     class Meta:
         model = Message
@@ -30,16 +36,21 @@ class MessageSerializer(serializers.ModelSerializer):
             "message_id",
             "sender",
             "message_body",
+            "preview",
             "sent_at",
         ]
         read_only_fields = ["message_id", "sent_at"]
 
+    def get_preview(self, obj):
+        """Return first 20 characters of message as preview"""
+        return obj.message_body[:20] if obj.message_body else ""
+
 
 class ConversationSerializer(serializers.ModelSerializer):
-    """Serializer for Conversation model with nested messages"""
-    
-    participants = UserSerializer(many=True, read_only=True)
+    """Serializer for Conversation with nested participants and messages"""
+    participants = UserSerializer(many=True)  # writable nested
     messages = MessageSerializer(many=True, read_only=True)
+    message_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Conversation
@@ -47,6 +58,19 @@ class ConversationSerializer(serializers.ModelSerializer):
             "conversation_id",
             "participants",
             "messages",
+            "message_count",
             "created_at",
         ]
         read_only_fields = ["conversation_id", "created_at"]
+
+    def get_message_count(self, obj):
+        """Return total number of messages in conversation"""
+        return obj.messages.count()
+
+    def validate_participants(self, value):
+        """Ensure conversation has at least one participant"""
+        if not value or len(value) == 0:
+            raise serializers.ValidationError(
+                "Conversation must have at least one participant"
+            )
+        return value
