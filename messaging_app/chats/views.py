@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend  # <-- add this
 from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
+from rest_framework.permissions import IsAuthenticated
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
@@ -13,6 +14,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
     """
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
+    permission_classes = [IsAuthenticated,]
     filter_backends = [DjangoFilterBackend]  # <-- enable filtering
     filterset_fields = ['participants__user_id']  # example: filter by participant
 
@@ -41,5 +43,6 @@ class MessageViewSet(viewsets.ModelViewSet):
     """
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
+    permission_classes=[IsAuthenticated,]
     filter_backends = [DjangoFilterBackend]  # <-- enable filtering
     filterset_fields = ['sender__user_id', 'conversation__conversation_id']  # example
