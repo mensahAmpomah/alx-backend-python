@@ -1,37 +1,43 @@
 from rest_framework import permissions
 from .models import Conversation
 
+
 class IsParticipantOfConversation(permissions.BasePermission):
     """
-    Custom permission:
-    - Allow access only to authenticated users
-    - Allow access only if the user is part of the conversation
+    Custom permission to allow only participants to:
+    - view (GET)
+    - send (POST)
+    - update (PUT/PATCH)
+    - delete (DELETE)
     """
 
+    SAFE_METHODS = ["GET"]
+
     def has_permission(self, request, view):
-        # User must be logged in
-        if not request.user or not request.user.is_authenticated:
-            return False
-        return True
+        # User must be authenticated
+        return request.user and request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
         """
-        obj will be a Message instance or Conversation instance.
-        We check if the requesting user is inside obj.conversation.participants
+        obj will be Message or Conversation.
+        Check if the user is a participant before allowing any action.
         """
-        conversation = None
 
-        # If obj is a Message
+        # Determine conversation from Message or Conversation instance
         if hasattr(obj, "conversation"):
             conversation = obj.conversation
-
-        # If obj is a Conversation
         elif isinstance(obj, Conversation):
             conversation = obj
-
-        # If no conversation found, deny
-        if conversation is None:
+        else:
             return False
 
-        # Check if the user is a participant
-        return conversation.participants.filter(id=request.user.id).exists()
+        # Check if user is participant
+        is_participant = conversation.participants.filter(id=request.user.id).exists()
+        if not is_participant:
+            return False
+
+        # Allow participants to use all methods (GET, POST, PUT, PATCH, DELETE)
+        if request.method in ["GET", "POST", "PUT", "PATCH", "DELETE"]:
+            return True
+
+        return False
