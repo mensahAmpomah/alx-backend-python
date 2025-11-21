@@ -11,20 +11,13 @@
       "request": {
         "method": "POST",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
+          { "key": "Content-Type", "value": "application/json" }
         ],
         "body": {
           "mode": "raw",
           "raw": "{\n    \"username\": \"your_user\",\n    \"password\": \"your_password\"\n}"
         },
-        "url": {
-          "raw": "{{base_url}}/api/token/",
-          "host": ["{{base_url}}"],
-          "path": ["api", "token", ""]
-        }
+        "url": { "raw": "{{base_url}}/api/token/", "host": ["{{base_url}}"], "path": ["api","token",""] }
       },
       "response": [],
       "event": [
@@ -44,24 +37,14 @@
       "request": {
         "method": "POST",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Authorization",
-            "value": "Bearer {{access_token}}"
-          }
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
         ],
         "body": {
           "mode": "raw",
           "raw": "{\n    \"title\": \"Project Chat\",\n    \"participants\": [2,3]\n}"
         },
-        "url": {
-          "raw": "{{base_url}}/api/conversations/",
-          "host": ["{{base_url}}"],
-          "path": ["api","conversations",""]
-        }
+        "url": { "raw": "{{base_url}}/api/conversations/", "host": ["{{base_url}}"], "path": ["api","conversations",""] }
       },
       "response": []
     },
@@ -70,16 +53,9 @@
       "request": {
         "method": "GET",
         "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{access_token}}"
-          }
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
         ],
-        "url": {
-          "raw": "{{base_url}}/api/conversations/",
-          "host": ["{{base_url}}"],
-          "path": ["api","conversations",""]
-        }
+        "url": { "raw": "{{base_url}}/api/conversations/", "host": ["{{base_url}}"], "path": ["api","conversations",""] }
       },
       "response": []
     },
@@ -88,24 +64,14 @@
       "request": {
         "method": "POST",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Authorization",
-            "value": "Bearer {{access_token}}"
-          }
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
         ],
         "body": {
           "mode": "raw",
           "raw": "{\n    \"content\": \"Hello team!\",\n    \"conversation\": 1\n}"
         },
-        "url": {
-          "raw": "{{base_url}}/api/conversations/1/messages/",
-          "host": ["{{base_url}}"],
-          "path": ["api","conversations","1","messages",""]
-        }
+        "url": { "raw": "{{base_url}}/api/conversations/1/messages/", "host": ["{{base_url}}"], "path": ["api","conversations","1","messages",""] }
       },
       "response": []
     },
@@ -114,16 +80,9 @@
       "request": {
         "method": "GET",
         "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{access_token}}"
-          }
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
         ],
-        "url": {
-          "raw": "{{base_url}}/api/conversations/1/messages/",
-          "host": ["{{base_url}}"],
-          "path": ["api","conversations","1","messages",""]
-        }
+        "url": { "raw": "{{base_url}}/api/conversations/1/messages/", "host": ["{{base_url}}"], "path": ["api","conversations","1","messages",""] }
       },
       "response": []
     },
@@ -132,23 +91,13 @@
       "request": {
         "method": "GET",
         "header": [],
-        "url": {
-          "raw": "{{base_url}}/api/conversations/",
-          "host": ["{{base_url}}"],
-          "path": ["api","conversations",""]
-        }
+        "url": { "raw": "{{base_url}}/api/conversations/", "host": ["{{base_url}}"], "path": ["api","conversations",""] }
       },
       "response": []
     }
   ],
   "variable": [
-    {
-      "key": "base_url",
-      "value": "http://127.0.0.1:8000"
-    },
-    {
-      "key": "access_token",
-      "value": ""
-    }
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "access_token", "value": "" }
   ]
 }
