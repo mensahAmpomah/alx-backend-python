@@ -8,7 +8,7 @@ class MessagePagination(PageNumberPagination):
 
     def get_paginated_response(self, data):
         return Response({
-            "count": self.page.paginator.count,          # ✔ required
+            "count": self.page.paginator.count,     
             "total_pages": self.page.paginator.num_pages,
             "current_page": self.page.number,
             "next": self.get_next_link(),
