@@ -1,16 +1,39 @@
-from datetime import datetime
-from django.http import HttpResponseForbidden
+import time
+from django.http import HttpResponse
 
-
-class RestrictAccessByTimeMiddleware:
+class OffensiveLanguageMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
+        # { ip_address : [timestamps_of_posts] }
+        self.message_history = {}
+
+        # Settings
+        self.TIME_WINDOW = 60     # 60 seconds = 1 minute
+        self.LIMIT = 5            # 5 messages per minute
 
     def __call__(self, request):
-        current_hour = datetime.now().hour
+        # Only track POST requests (messages being sent)
+        if request.method == "POST":
+            ip = request.META.get("REMOTE_ADDR")
+            now = time.time()
 
-        # Block outside 6PM (18) to 9PM (21)
-        if current_hour < 18 or current_hour >= 21:
-            return HttpResponseForbidden("Access to chat is restricted at this time.")
+            # Create entry for new IPs
+            if ip not in self.message_history:
+                self.message_history[ip] = []
+
+            # Remove timestamps older than 1 minute
+            self.message_history[ip] = [
+                t for t in self.message_history[ip] if now - t < self.TIME_WINDOW
+            ]
+
+            # Check if limit exceeded
+            if len(self.message_history[ip]) >= self.LIMIT:
+                return HttpResponse(
+                    "Message limit exceeded. Try again later.",
+                    status=429
+                )
+
+            # Add new message timestamp
+            self.message_history[ip].append(now)
 
         return self.get_response(request)
