@@ -84,3 +84,20 @@ def message_thread(request, message_id):
     thread = get_thread(root_message)
 
     return render(request, "messaging/thread.html", {"thread": thread})
+
+
+
+@login_required
+def unread_inbox(request):
+   
+    unread_messages = (
+        Message.unread.unread_for_user(request.user)
+        .select_related("sender", "receiver", "edited_by")
+        .prefetch_related("replies")
+        .only("id", "sender", "receiver", "content", "timestamp", "parent_message")  # <-- explicit .only
+        .order_by("-timestamp")
+    )
+
+    return render(request, "messaging/unread_inbox.html", {
+        "messages": unread_messages
+    })
