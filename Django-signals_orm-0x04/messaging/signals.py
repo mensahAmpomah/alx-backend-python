@@ -1,7 +1,7 @@
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 from .models import Message, Notification, MessageHistory
-
+from django.contrib.auth.models import User
 
 @receiver(post_save, sender=Message)
 def create_notification_for_message(sender, instance, created, **kwargs):
@@ -41,3 +41,20 @@ def log_message_edit(sender, instance, **kwargs):
 
             # Mark message as edited
             instance.edited = True
+
+
+@receiver(post_delete, sender=User)
+def delete_user_related_data(sender, instance, **kwargs):
+    """
+    Removes all remaining objects related to the deleted user.
+    """
+
+    # Delete notifications sent to the user
+    Notification.objects.filter(user=instance).delete()
+
+    # Delete history records where the user was the editor
+    MessageHistory.objects.filter(edited_by=instance).delete()
+
+    # Extra safety cleanup (in case cascade didn't catch everything):
+    Message.objects.filter(sender=instance).delete()
+    Message.objects.filter(receiver=instance).delete()
