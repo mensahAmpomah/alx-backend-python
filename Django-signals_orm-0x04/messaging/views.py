@@ -1,34 +1,22 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, get_object_or_404, render
+from django.shortcuts import render
+from django.contrib.auth.models import User
 from .models import Message
-from django.contrib.auth.models import User 
+
 
 @login_required
-def send_message(request, receiver_id, parent_id=None):
+def inbox(request):
     """
-    Allows a user to send a new message OR reply to an existing one.
-    `sender=request.user` is explicitly included.
+    Shows all top-level messages (not replies),
+    optimized using select_related and prefetch_related.
     """
 
-    receiver = get_object_or_404(User, id=receiver_id)
-    parent_message = None
+    messages = (
+        Message.objects
+        .filter(receiver=request.user, parent_message__isnull=True)  # <-- FILTER
+        .select_related("sender", "receiver", "edited_by")            # <-- select_related
+        .prefetch_related("replies")                                  # <-- prefetch replies
+        .order_by("-timestamp")
+    )
 
-    if parent_id:
-        parent_message = get_object_or_404(Message, id=parent_id)
-
-    if request.method == "POST":
-        content = request.POST.get("content")
-
-        Message.objects.create(
-            sender=request.user,             # REQUIRED — now included!
-            receiver=receiver,
-            content=content,
-            parent_message=parent_message    # supports threaded replies
-        )
-
-        return redirect("inbox")
-
-    return render(request, "messaging/send_message.html", {
-        "receiver": receiver,
-        "parent_message": parent_message
-    })
+    return render(request, "messaging/inbox.html", {"messages": messages})
