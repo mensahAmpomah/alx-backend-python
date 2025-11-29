@@ -11,17 +11,26 @@ class Message(models.Model):
     )
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+
     edited = models.BooleanField(default=False)
     edited_by = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
+        User, on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="edited_messages"
+    )
+
+    # NEW: For threaded replies
+    parent_message = models.ForeignKey(
+        "self",
+        on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name="edited_messages",
-        help_text="The user who last edited this message."
+        related_name="replies"
     )
 
     def __str__(self):
+        if self.parent_message:
+            return f"Reply by {self.sender} to Message {self.parent_message.id}"
         return f"Message from {self.sender} to {self.receiver}"
 
 

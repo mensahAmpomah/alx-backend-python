@@ -1,18 +1,18 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-
+from django.shortcuts import render
+from .models import Message
 
 
 @login_required
-def delete_user(request):
-    """
-    Allows a logged-in user to delete their own account.
-    """
-
+def inbox(request):
     user = request.user
 
-    logout(request)          # log them out before deleting
-    user.delete()            # triggers post_delete signal
+    messages = (
+        Message.objects
+        .filter(receiver=user, parent_message__isnull=True)
+        .select_related("sender", "receiver", "edited_by")
+        .prefetch_related("replies__sender", "replies__edited_by")
+        .order_by("-timestamp")
+    )
 
-    return redirect("home") 
+    return render(request, "messaging/inbox.html", {"messages": messages})
