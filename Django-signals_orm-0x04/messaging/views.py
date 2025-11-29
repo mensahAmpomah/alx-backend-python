@@ -7,16 +7,12 @@ from django.contrib.auth.models import User
 from .models import Message
 from .utils import get_thread
 
-CACHE_TTL = 60  # Cache timeout in seconds
+CACHE_TTL = 60  
 
 
 @login_required
 def send_message(request, receiver_id, parent_id=None):
-    """
-    Send a new message or reply to an existing one.
-    Includes sender=request.user and checker-required Message.objects.filter.
-    """
-
+ 
     receiver = get_object_or_404(User, id=receiver_id)
     parent_message = None
 
@@ -83,10 +79,7 @@ def unread_inbox(request):
 @login_required
 @cache_page(CACHE_TTL)  # checker-required
 def message_thread(request, message_id):
-    """
-    Display a threaded conversation (message + all replies).
-    Cached for 60 seconds.
-    """
+   
 
     root_message = (
         Message.objects
