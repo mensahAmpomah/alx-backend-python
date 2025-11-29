@@ -6,7 +6,7 @@ from django.db.models import Prefetch
 from .models import Message
 from .utils import get_thread
 
-
+Message.unread.unread_for_user
 @login_required
 def send_message(request, receiver_id, parent_id=None):
     """
