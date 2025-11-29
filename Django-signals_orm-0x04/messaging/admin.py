@@ -4,7 +4,7 @@ from .models import Message, Notification
 
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ("sender", "receiver", "timestamp")
+    list_display = ("sender", "receiver", "timestamp","edited")
 
 
 @admin.register(Notification)
