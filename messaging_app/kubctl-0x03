@@ -1,0 +1,31 @@
+#!/bin/bash
+
+
+DEPLOYMENT=blue_deployment.yaml
+SERVICE_NAME=django-messaging-service
+NAMESPACE=default
+APP_URL=http://localhost:8000/api # adjust path if needed
+
+
+# Apply the updated deployment (triggers rolling update)
+echo "Applying updated deployment..."
+kubectl apply -f $DEPLOYMENT
+
+
+# Monitor the rollout status
+echo "Monitoring rollout status..."
+kubectl rollout status deployment/django-messaging-app -n $NAMESPACE
+
+
+# Test the app for downtime using curl
+# Continuously send requests in the background
+echo "Testing for downtime..."
+for i in {1..30}; do
+curl -s -o /dev/null -w "%{http_code}\n" $APP_URL
+sleep 1
+done
+
+
+# Check current pods
+echo "Current pods after rolling update:"
+kubectl get pods -n $NAMESPACE
